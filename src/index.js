@@ -1,9 +1,17 @@
-const Joi = require('joi');
-const _ = require('lodash');
+import Joi from "joi"
+import _ from "lodash"
+import path from "path"
+import fs from "fs"
+import n3 from "n3"
+import S from "string"
+
 /**
  * @param {Type}
  * @return {Type}
  */
+
+const n3parser = n3.Parser();
+const n3parse = (str) => _.head(n3parser.parse(str));
 
 const mediumString = Joi.string().min(1).max(120);
 const pathString = Joi.string().max(1000);
@@ -43,9 +51,24 @@ const confSchema = Joi.object().keys({
    appConfig: appConfigSchema.required()
 }).required();
 
+const isTriple = (str) => S(str).contains("<")
+
+const readNTriplesFile = (filename, callback) => {
+  fs.readFile(filename, 'utf8', function(err, data) {
+    if (err) {
+      callback(err);
+    } else {
+      const lines = _.filter(S(data).lines(), isTriple);
+      const triples = _.map(lines, n3parse);
+      callback(null, triples);
+    }
+});
+}
+
 class CreativeSemanticStore {
     constructor(conf) {
         this.conf = conf;
+        this.activeTriples = {};
     }
 
     loadReadOnly(callback) {
@@ -60,11 +83,31 @@ class CreativeSemanticStore {
         callback(null, true);
     }
 
-    loadCategory(callback) {
+    loadActiveCategoryTriples(opts, callback) {
+        const filename = path.resolve(opts.folder, `${opts.category}.nt`)
+        readNTriplesFile(filename, (err, triples)=> {
+          if (err) {
+            callback(err, false);
+          } else {
+            this.activeTriples[opts.category] = triples;
+            callback(null, true);
+          }
+        });
+    }
+
+    loadActiveCategoryHistory(opts, callback) {
+        const category = opts.category;
+        const folder = opts.folder;
         callback(null, true);
     }
 
-    saveCategory(callback) {
+    loadActiveCategory(opts, callback) {
+        const category = opts.category;
+        const folder = opts.folder;
+        callback(null, true);
+    }
+
+    saveActiveCategory(callback) {
         callback(null, true);
     }
 
