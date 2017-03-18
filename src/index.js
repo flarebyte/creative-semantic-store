@@ -43,13 +43,73 @@ const confSchema = Joi.object().keys({
    appConfig: appConfigSchema.required()
 }).required();
 
+class CreativeSemanticStore {
+    constructor(conf) {
+        this.conf = conf;
+    }
+
+    loadReadOnly(callback) {
+        callback(null, true);
+    }
+
+    loadActive(callback) {
+        callback(null, true);
+    }
+
+    saveActive(callback) {
+        callback(null, true);
+    }
+
+    loadCategory(callback) {
+        callback(null, true);
+    }
+
+    saveCategory(callback) {
+        callback(null, true);
+    }
+
+    insertEntity(callback) {
+        callback(null, true);
+    }
+
+    updateEntity(callback) {
+        callback(null, true);
+    }
+
+    deleteEntity(callback) {
+        callback(null, true);
+    }
+
+    searchById(callback) {
+        callback(null, true);
+    }
+
+    searchByVersionId(callback) {
+        callback(null, true);
+    }
+
+    searchByType(callback) {
+        callback(null, true);
+    }
+
+    searchByKeyword(callback) {
+        callback(null, true);
+    }
+
+    searchByText(callback) {
+        callback(null, true);
+    }
+
+
+};
+
 export default function (conf) {
   const {error, value} = Joi.validate(conf, confSchema);
   if (error !== null) {
     throw error;
   }
 
-  const datastore = {};
+  const datastore = new CreativeSemanticStore(conf);
 
   return datastore
 }
