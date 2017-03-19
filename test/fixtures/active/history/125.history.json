@@ -1,0 +1,74 @@
+{
+  "id": "http://www.site.org/id/101/",
+  "version": "http://www.site.org/version/125/",
+  "history": [
+    {
+      "headline": "London gathering",
+      "alternativeHeadline": "Comic in London",
+      "description": "Script for a london gathering",
+      "url": "/comic-script/AAA",
+      "inLanguage": "en",
+      "typeOfWork": {
+        "name": "Comic Script",
+        "url": "/thing/comic-script"
+      },
+      "typeOfContribution": {
+        "name": "writing",
+        "url": "/typeOfContribution/writing"
+      },
+      "license": {
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "description": "Creative Commons Attribution 4.0 International",
+        "name": "CC BY 4.0",
+        "twitter:hastag": "#CCBY",
+        "alternateName": "CC BY"
+      },
+      "keywords": [
+        {
+          "name": "Steam Punk",
+          "twitter:hastag": "#steampunk",
+          "wikipedia:url": "Steampunk"
+        }
+      ],
+      "author": {
+        "name": "John Smith",
+        "url": "/john-smith",
+        "twitter:username": "@johnsmith"
+      }
+    },
+    {
+      "headline": "London gathering",
+      "alternativeHeadline": "Comic in London",
+      "description": "Script for a london gathering",
+      "url": "/comic-script/AAA",
+      "inLanguage": "en",
+      "typeOfWork": {
+        "name": "Comic Script",
+        "url": "/thing/comic-script"
+      },
+      "typeOfContribution": {
+        "name": "writing",
+        "url": "/typeOfContribution/writing"
+      },
+      "license": {
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "description": "Creative Commons Attribution 4.0 International",
+        "name": "CC BY 4.0",
+        "twitter:hastag": "#CCBY",
+        "alternateName": "CC BY"
+      },
+      "keywords": [
+        {
+          "name": "Steam Punk",
+          "twitter:hastag": "#steampunk",
+          "wikipedia:url": "Steampunk"
+        }
+      ],
+      "author": {
+        "name": "John Smith",
+        "url": "/john-smith",
+        "twitter:username": "@johnsmith"
+      }
+    }
+  ]
+}

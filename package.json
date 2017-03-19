@@ -60,6 +60,8 @@
     "watch": "^0.16.0"
   },
   "dependencies": {
+    "ajv": "^4.11.5",
+    "fs-extra": "^2.1.2",
     "joi": "^10.2.2",
     "lodash": "^4.17.4",
     "multimap": "^1.0.2",

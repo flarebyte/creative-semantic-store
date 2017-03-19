@@ -1,10 +1,13 @@
 import Joi from "joi"
 import _ from "lodash"
 import path from "path"
-import fs from "fs"
+import fs from "fs-extra"
 import n3 from "n3"
 import S from "string"
 import Multimap from "multimap"
+import Ajv from "ajv"
+const historySchema = require("./history.schema.json")
+const ajv = new Ajv();
 
 /**
  * @param {Type}
@@ -13,6 +16,8 @@ import Multimap from "multimap"
 
 const n3parser = n3.Parser();
 const n3parse = (str) => _.head(n3parser.parse(str));
+
+const validateHistory = ajv.compile(historySchema);
 
 const mediumString = Joi.string().min(1).max(120);
 const pathString = Joi.string().max(1000);
@@ -69,6 +74,7 @@ const readNTriplesFile = (filename, callback) => {
 class CreativeSemanticStore {
     constructor(conf) {
         this.conf = conf;
+        this.activeHistory = {};
         this.activeTriples = {};
         this.categories = _.uniq(_.map(conf.appConfig.categoryMapping, _.last)).sort();
         _.forEach(this.categories, (c) => this.activeTriples[c] = new Multimap());
@@ -99,10 +105,21 @@ class CreativeSemanticStore {
         });
     }
 
-    loadActiveCategoryHistory(opts, callback) {
-        const category = opts.category;
-        const folder = opts.folder;
-        callback(null, true);
+    loadActiveHistory(opts, callback) {
+        const filename = path.resolve(opts.folder, "history", `${opts.version}.history.json`)
+        fs.readJson(filename, (err, history) => {
+          if (err) {
+            callback(err);
+          } else {
+            const valid = validateHistory(history);
+            if (valid) {
+              this.activeHistory[opts.version] = history;
+              callback(null, true);
+            } else {
+              callback(validateHistory.errors);
+            }
+          }
+        })
     }
 
     loadActiveCategory(opts, callback) {

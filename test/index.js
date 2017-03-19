@@ -56,16 +56,26 @@ test("creativeSemanticStore should load a category", (t) => {
     t.ok(success, "should be successful");
     t.equal(_.size(store.activeTriples.venus), 2, 'should have the exact number of subject sections');
     t.deepEqual(store.categories, ['jupiter','venus'], 'should have categories');
-    t.deepEqual(store.activeTriples.venus.get('http://www.w3.org/2001/sw/RDFCore/ntriples/'),
+    t.deepEqual(store.activeTriples.venus.get('http://www.site.org/version/125/'),
      [ { graph: '', object: '"Dave Beckett"',
       predicate: 'http://purl.org/dc/elements/1.1/creator',
-      subject: 'http://www.w3.org/2001/sw/RDFCore/ntriples/' },
+      subject: 'http://www.site.org/version/125/' },
       { graph: '', object: '"Art Barstow"',
         predicate: 'http://purl.org/dc/elements/1.1/creator',
-        subject: 'http://www.w3.org/2001/sw/RDFCore/ntriples/' },
+        subject: 'http://www.site.org/version/125/' },
       { graph: '', object: 'http://www.w3.org/',
         predicate: 'http://purl.org/dc/elements/1.1/publisher',
-        subject: 'http://www.w3.org/2001/sw/RDFCore/ntriples/' }
+        subject: 'http://www.site.org/version/125/' }
       ]);
     });
   });
+
+  test("creativeSemanticStore should load an active history for version", (t) => {
+    const store = creativeSemanticStore(conf);
+    const opts = {version: '125', folder: activeDir};
+    t.plan(2)
+    store.loadActiveHistory(opts, (err, success)=> {
+      t.ok(success, "should be successful");
+      t.equal(store.activeHistory['125'].history[0].headline, "London gathering")
+      });
+    });
