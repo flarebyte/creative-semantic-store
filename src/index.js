@@ -6,6 +6,7 @@ import n3 from "n3"
 import S from "string"
 import Multimap from "multimap"
 import Ajv from "ajv"
+const n3Util = n3.Util;
 const historySchema = require("./history.schema.json")
 const ajv = new Ajv();
 
@@ -14,6 +15,7 @@ const ajv = new Ajv();
  * @return {Type}
  */
 
+const typeOfWorkPredicate = "http://flarebyte.com/typeOfWork"
 const n3parser = n3.Parser();
 const n3parse = (str) => _.head(n3parser.parse(str));
 
@@ -48,7 +50,7 @@ const categoryMappingSchema = Joi.array().items(mediumString).length(2);
 
 const appConfigSchema = Joi.object().keys({
    categoryMapping: Joi.array().items(categoryMappingSchema).unique().min(1).max(1000).required(),
-   onInsertEntity: Joi.func().required(),
+   onGenerateVersion: Joi.func().required(),
    onUpdateEntity: Joi.func().required()
 });
 
@@ -71,10 +73,13 @@ const readNTriplesFile = (filename, callback) => {
 });
 }
 
+const findObjectByPredicate = (triples, predicate) => n3Util.getLiteralValue(_.get(_.find(triples, {predicate}),'object'));
+
 class CreativeSemanticStore {
     constructor(conf) {
         this.conf = conf;
         this.activeHistory = {};
+        this.activeVersions = [];
         this.activeTriples = {};
         this.categories = _.uniq(_.map(conf.appConfig.categoryMapping, _.last)).sort();
         _.forEach(this.categories, (c) => this.activeTriples[c] = new Multimap());
@@ -122,18 +127,17 @@ class CreativeSemanticStore {
         })
     }
 
-    loadActiveCategory(opts, callback) {
-        const category = opts.category;
-        const folder = opts.folder;
-        callback(null, true);
+    toCategory(typeOfWork) {
+      const mapping = _.fromPairs(this.conf.appConfig.categoryMapping);
+      return mapping[typeOfWork];
     }
 
-    saveActiveCategory(callback) {
-        callback(null, true);
-    }
-
-    insertEntity(callback) {
-        callback(null, true);
+    insertEntity(opts) {
+        const version = this.conf.onGenerateVersion('/version');
+        const triples = opts.triples;
+        const typeOfWork = findObjectByPredicate(triples, typeOfWorkPredicate);
+        const category = toCategory(typeOfWork);
+        this.activeVersions.push(version);
     }
 
     updateEntity(callback) {

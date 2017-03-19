@@ -18,8 +18,8 @@ const activeAuthor = {
       "url":"http:/mysite.com/adele-smith",
       "twitter:username":"@adelesmith"
 };
-const onInsertEntity = (value) => {
-  return value;
+const onGenerateVersion = (prefix) => {
+  return prefix+'/987';
 };
 const onUpdateEntity = (value) => {
   return value;
@@ -39,7 +39,7 @@ const conf = {
 
   appConfig: {
     categoryMapping,
-    onInsertEntity,
+    onGenerateVersion,
     onUpdateEntity
   }
 };
