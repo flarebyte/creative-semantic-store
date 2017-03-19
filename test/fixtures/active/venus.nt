@@ -1,3 +1,7 @@
+<http://www.site.org/alpha/> <http://purl.org/dc/elements/1.1/publisher> "Publisher Alpha" .
+<http://www.site.org/alpha/> <http://purl.org/dc/elements/1.1/creator> "Creator Alpha" .
+<http://www.site.org/beta/> <http://purl.org/dc/elements/1.1/publisher> "Publisher Beta" .
+<http://www.site.org/beta/> <http://purl.org/dc/elements/1.1/creator> "Creator Beta" .
 <http://www.w3.org/2001/sw/RDFCore/ntriples/> <http://purl.org/dc/elements/1.1/creator> "Dave Beckett" .
 <http://www.w3.org/2001/sw/RDFCore/ntriples/> <http://purl.org/dc/elements/1.1/creator> "Art Barstow" .
 <http://www.w3.org/2001/sw/RDFCore/ntriples/> <http://purl.org/dc/elements/1.1/publisher> <http://www.w3.org/> .

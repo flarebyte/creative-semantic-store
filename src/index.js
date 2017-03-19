@@ -4,6 +4,7 @@ import path from "path"
 import fs from "fs"
 import n3 from "n3"
 import S from "string"
+import Multimap from "multimap"
 
 /**
  * @param {Type}
@@ -69,6 +70,8 @@ class CreativeSemanticStore {
     constructor(conf) {
         this.conf = conf;
         this.activeTriples = {};
+        this.categories = _.uniq(_.map(conf.appConfig.categoryMapping, _.last)).sort();
+        _.forEach(this.categories, (c) => this.activeTriples[c] = new Multimap());
     }
 
     loadReadOnly(callback) {
@@ -85,11 +88,12 @@ class CreativeSemanticStore {
 
     loadActiveCategoryTriples(opts, callback) {
         const filename = path.resolve(opts.folder, `${opts.category}.nt`)
+        const activeCat = this.activeTriples[opts.category];
         readNTriplesFile(filename, (err, triples)=> {
           if (err) {
             callback(err, false);
           } else {
-            this.activeTriples[opts.category] = triples;
+            _.forEach(triples, (t) => activeCat.set(t.subject, t));
             callback(null, true);
           }
         });

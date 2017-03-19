@@ -51,14 +51,21 @@ test("creativeSemanticStore should validate config", (t) => {
 test("creativeSemanticStore should load a category", (t) => {
   const store = creativeSemanticStore(conf);
   const opts = {category: 'venus', folder: activeDir};
-  t.plan(3)
+  t.plan(4)
   store.loadActiveCategoryTriples(opts, (err, success)=> {
     t.ok(success, "should be successful");
-    t.equal(_.size(store.activeTriples.venus), 3, 'should have the exact number of triples');
-    t.deepEqual(store.activeTriples.venus[0], { graph: '',
-     object: '"Dave Beckett"',
-     predicate: 'http://purl.org/dc/elements/1.1/creator',
-     subject: 'http://www.w3.org/2001/sw/RDFCore/ntriples/'});
-  })
-
-})
+    t.equal(_.size(store.activeTriples.venus), 2, 'should have the exact number of subject sections');
+    t.deepEqual(store.categories, ['jupiter','venus'], 'should have categories');
+    t.deepEqual(store.activeTriples.venus.get('http://www.w3.org/2001/sw/RDFCore/ntriples/'),
+     [ { graph: '', object: '"Dave Beckett"',
+      predicate: 'http://purl.org/dc/elements/1.1/creator',
+      subject: 'http://www.w3.org/2001/sw/RDFCore/ntriples/' },
+      { graph: '', object: '"Art Barstow"',
+        predicate: 'http://purl.org/dc/elements/1.1/creator',
+        subject: 'http://www.w3.org/2001/sw/RDFCore/ntriples/' },
+      { graph: '', object: 'http://www.w3.org/',
+        predicate: 'http://purl.org/dc/elements/1.1/publisher',
+        subject: 'http://www.w3.org/2001/sw/RDFCore/ntriples/' }
+      ]);
+    });
+  });
