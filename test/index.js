@@ -18,12 +18,15 @@ const activeAuthor = {
       "url":"http:/mysite.com/adele-smith",
       "twitter:username":"@adelesmith"
 };
-const onGenerateVersion = (prefix) => {
-  return prefix+'/987';
+
+const onGenerateId = (prefix, category) => {
+  return `${category}/${prefix}-789`;
 };
-const onUpdateEntity = (value) => {
-  return value;
+
+const onGenerateVersion = (prefix, category, id) => {
+  return `${id}-56`;
 };
+
 
 const categoryMapping = [['aphrodite','venus'],['beauty','venus'],['zeus','jupiter']]
 
@@ -39,8 +42,10 @@ const conf = {
 
   appConfig: {
     categoryMapping,
+    categorySrcPredicate: "http://website.com/typeOfWork",
+    idPredicate: "http://website.com/id",
+    onGenerateId,
     onGenerateVersion,
-    onUpdateEntity
   }
 };
 test("creativeSemanticStore should validate config", (t) => {
@@ -78,4 +83,24 @@ test("creativeSemanticStore should load a category", (t) => {
       t.ok(success, "should be successful");
       t.equal(store.activeHistory['125'].history[0].headline, "London gathering")
       });
+    });
+
+  test("creativeSemanticStore should insert entity", (t) => {
+    const store = creativeSemanticStore(conf);
+    const opts = {couples: [
+      {predicate: "http:/a.com/a", object: '"a"'},
+      {predicate: "http://website.com/typeOfWork", object: '"zeus"'},
+      {predicate: "http:/a.com/b", object: '"b"'},
+      {predicate: "http:/a.com/c", object: '"c"'}
+    ]};
+    t.plan(1)
+    const entity = store.insertEntity(opts);
+    const expected = [
+      { object: '"a"', predicate: 'http:/a.com/a', subject: 'jupiter/1234-789-56' },
+      { object: '"zeus"', predicate: 'http://website.com/typeOfWork', subject: 'jupiter/1234-789-56' },
+      { object: '"b"', predicate: 'http:/a.com/b', subject: 'jupiter/1234-789-56' },
+      { object: '"c"', predicate: 'http:/a.com/c', subject: 'jupiter/1234-789-56' },
+      { object: 'jupiter/1234-789', predicate: 'http://website.com/id', subject: 'jupiter/1234-789-56' }
+     ];
+    t.deepEqual(entity.triples, expected, "should have correct triples");
     });

@@ -15,7 +15,6 @@ const ajv = new Ajv();
  * @return {Type}
  */
 
-const typeOfWorkPredicate = "http://flarebyte.com/typeOfWork"
 const n3parser = n3.Parser();
 const n3parse = (str) => _.head(n3parser.parse(str));
 
@@ -50,13 +49,15 @@ const categoryMappingSchema = Joi.array().items(mediumString).length(2);
 
 const appConfigSchema = Joi.object().keys({
    categoryMapping: Joi.array().items(categoryMappingSchema).unique().min(1).max(1000).required(),
+   categorySrcPredicate: anyUrl,
    onGenerateVersion: Joi.func().required(),
-   onUpdateEntity: Joi.func().required()
+   onGenerateId: Joi.func().required(),
+   idPredicate: anyUrl,
 });
 
 const confSchema = Joi.object().keys({
    userConfig: userConfigSchema.required(),
-   appConfig: appConfigSchema.required()
+   appConfig: appConfigSchema.required(),
 }).required();
 
 const isTriple = (str) => S(str).contains("<")
@@ -78,6 +79,7 @@ const findObjectByPredicate = (triples, predicate) => n3Util.getLiteralValue(_.g
 class CreativeSemanticStore {
     constructor(conf) {
         this.conf = conf;
+        this.categoryMap = _.fromPairs(this.conf.appConfig.categoryMapping);
         this.activeHistory = {};
         this.activeVersions = [];
         this.activeTriples = {};
@@ -127,17 +129,28 @@ class CreativeSemanticStore {
         })
     }
 
-    toCategory(typeOfWork) {
-      const mapping = _.fromPairs(this.conf.appConfig.categoryMapping);
-      return mapping[typeOfWork];
+    findCategory(couples) {
+      const categorySrc = findObjectByPredicate(couples, this.conf.appConfig.categorySrcPredicate);
+      return this.categoryMap[categorySrc];
     }
 
     insertEntity(opts) {
-        const version = this.conf.onGenerateVersion('/version');
-        const triples = opts.triples;
-        const typeOfWork = findObjectByPredicate(triples, typeOfWorkPredicate);
-        const category = toCategory(typeOfWork);
+        const couples = opts.couples;
+        const category = this.findCategory(couples);
+        const prefix = this.conf.userConfig.activePrefix;
+        const id = this.conf.appConfig.onGenerateId(prefix, category);
+        const version = this.conf.appConfig.onGenerateVersion(prefix, category, id);
+        const couple2triple = (v) => {
+          return {subject: version, predicate: v.predicate, object: v.object};
+        }
+        const triples = _.map(couples, couple2triple);
+        triples.push({subject: version,
+           predicate: this.conf.appConfig.idPredicate,
+           object: id});
         this.activeVersions.push(version);
+        const activeCat = this.activeTriples[category];
+        activeCat.set(version, triples);
+        return {triples};
     }
 
     updateEntity(callback) {
