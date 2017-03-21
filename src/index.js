@@ -52,9 +52,14 @@ const appConfigSchema = Joi.object().keys({
    categorySrcPredicate: anyUrl,
    onGenerateVersion: Joi.func().required(),
    onGenerateId: Joi.func().required(),
+   onGenerateHomepage: Joi.func().required(),
    onUpdateTime: Joi.func().required(),
    idPredicate: anyUrl,
    updatedPredicate: anyUrl,
+   headlinePredicate: anyUrl,
+   alternativeHeadlinePredicate: anyUrl,
+   descriptionPredicate: anyUrl,
+   homepagePredicate: anyUrl,
 });
 
 const confSchema = Joi.object().keys({
@@ -76,7 +81,14 @@ const readNTriplesFile = (filename, callback) => {
 });
 }
 
-const findObjectByPredicate = (triples, predicate) => n3Util.getLiteralValue(_.get(_.find(triples, {predicate}),'object'));
+const findObjectByPredicate = (triples, predicate) => {
+  const value = _.get(_.find(triples, {predicate}),'object');
+  if (_.isNil(value)) {
+    return null;
+  } else {
+    return n3Util.getLiteralValue(value);
+  }
+}
 
 class CreativeSemanticStore {
     constructor(conf) {
@@ -142,8 +154,18 @@ class CreativeSemanticStore {
         const category = this.findCategory(couples);
         const prefix = this.conf.userConfig.activePrefix;
         const id = this.conf.appConfig.onGenerateId(slug, prefix, category);
+        const homepage = this.conf.appConfig.onGenerateHomepage(slug, prefix, category);
         const version = this.conf.appConfig.onGenerateVersion(slug, prefix, category, id);
         const updatedTime =  this.conf.appConfig.onUpdateTime();
+
+        const headline = findObjectByPredicate(couples, this.conf.appConfig.headlinePredicate);
+        const alternativeHeadline = findObjectByPredicate(couples, this.conf.appConfig.alternativeHeadlinePredicate);
+        const description = findObjectByPredicate(couples, this.conf.appConfig.descriptionPredicate);
+        const url = findObjectByPredicate(couples, this.conf.appConfig.homepagePredicate);;
+        const typeOfWork = null;
+        const typeOfContribution = null;
+        const keywords = null;
+
         const couple2triple = (v) => {
           return {subject: version, predicate: v.predicate, object: v.object};
         }
@@ -154,10 +176,34 @@ class CreativeSemanticStore {
         triples.push({subject: version,
             predicate: this.conf.appConfig.updatedPredicate,
             object: updatedTime});
+        triples.push({subject: version,
+            predicate: this.conf.appConfig.homepagePredicate,
+            object: homepage});
         this.activeVersions.push(version);
         const activeCat = this.activeTriples[category];
         activeCat.set(version, triples);
-        return {triples};
+        const history = {
+          id,
+          version,
+          updated: updatedTime,
+          latest: {
+              headline,
+              url: homepage,
+              inLanguage: this.conf.userConfig.activeLanguage,
+              typeOfWork,
+              typeOfContribution,
+              license: this.conf.userConfig.activeLicense,
+              keywords,
+              author: this.conf.userConfig.activeAuthor
+            }
+          };
+        if (_.isString(alternativeHeadline)) {
+          history.latest.alternativeHeadline = alternativeHeadline;
+        }
+        if (_.isString(description)) {
+          history.latest.description = description;
+        }
+        return {triples, history};
     }
 
     updateEntity(callback) {

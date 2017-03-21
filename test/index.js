@@ -23,6 +23,10 @@ const onGenerateId = (slug, prefix, category) => {
   return `${category}/${slug}-${prefix}-789`;
 };
 
+const onGenerateHomepage = (slug, prefix, category) => {
+  return `http://mysite.com/page/${category}/${slug}-${prefix}-789`;
+};
+
 const onGenerateVersion = (slug, prefix, category, id) => {
   return `${id}-56`;
 };
@@ -49,7 +53,12 @@ const conf = {
     categorySrcPredicate: "http://website.com/typeOfWork",
     idPredicate: "http://website.com/id",
     updatedPredicate: "http://website.com/updated",
+    headlinePredicate: "http://website.com/headline",
+    alternativeHeadlinePredicate: "http://website.com/alternativeHeadline",
+    descriptionPredicate: "http://website.com/description",
+    homepagePredicate: "http://website.com/homepage",
     onGenerateId,
+    onGenerateHomepage,
     onGenerateVersion,
     onUpdateTime
   }
@@ -99,17 +108,47 @@ test("creativeSemanticStore should load a category", (t) => {
       {predicate: "http:/a.com/a", object: '"a"'},
       {predicate: "http://website.com/typeOfWork", object: '"zeus"'},
       {predicate: "http:/a.com/b", object: '"b"'},
-      {predicate: "http:/a.com/c", object: '"c"'}
+      {predicate: "http:/a.com/c", object: '"c"'},
+      {predicate: "http://website.com/headline", object: '"some headline"'},
+      {predicate: "http://website.com/description", object: '"some desc"'}
     ]};
-    t.plan(1)
+    t.plan(2)
     const entity = store.insertEntity(opts);
-    const expected = [
-      { object: '"a"', predicate: 'http:/a.com/a', subject: 'jupiter/helpful-slug-1234-789-56' },
-      { object: '"zeus"', predicate: 'http://website.com/typeOfWork', subject: 'jupiter/helpful-slug-1234-789-56' },
-      { object: '"b"', predicate: 'http:/a.com/b', subject: 'jupiter/helpful-slug-1234-789-56' },
-      { object: '"c"', predicate: 'http:/a.com/c', subject: 'jupiter/helpful-slug-1234-789-56' },
-      { object: 'jupiter/helpful-slug-1234-789', predicate: 'http://website.com/id', subject: 'jupiter/helpful-slug-1234-789-56' },
-      { object: '2011-12-19T15:28:46.493Z', predicate: 'http://website.com/updated', subject: 'jupiter/helpful-slug-1234-789-56' }
+    const subject = 'jupiter/helpful-slug-1234-789-56';
+    const expectedTriples = [
+      { object: '"a"', predicate: 'http:/a.com/a', subject },
+      { object: '"zeus"', predicate: 'http://website.com/typeOfWork', subject},
+      { object: '"b"', predicate: 'http:/a.com/b', subject },
+      { object: '"c"', predicate: 'http:/a.com/c', subject},
+      { object: '"some headline"', predicate: "http://website.com/headline", subject},
+      { object: '"some desc"', predicate: "http://website.com/description", subject},
+      { object: 'jupiter/helpful-slug-1234-789', predicate: 'http://website.com/id', subject },
+      { object: '2011-12-19T15:28:46.493Z', predicate: 'http://website.com/updated', subject },
+      { object: 'http://mysite.com/page/jupiter/helpful-slug-1234-789', predicate: 'http://website.com/homepage', subject }
      ];
-    t.deepEqual(entity.triples, expected, "should have correct triples");
+    t.deepEqual(entity.triples, expectedTriples, "should have correct triples");
+    const expectedHistory = { id: 'jupiter/helpful-slug-1234-789',
+     latest: {
+        author: {
+           name: 'Adele Smith',
+          'twitter:username': '@adelesmith',
+           url: 'http:/mysite.com/adele-smith' },
+          description: 'some desc',
+          headline: 'some headline',
+          inLanguage: 'en',
+          keywords: null,
+          license: {
+            alternateName: 'CC BY',
+             description: 'Creative Commons Attribution 4.0 International',
+             name: 'CC BY 4.0', 'twitter:hastag': '#CCBY',
+             url: 'https://creativecommons.org/licenses/by/4.0/'
+           },
+          typeOfContribution: null,
+          typeOfWork: null,
+          url: 'http://mysite.com/page/jupiter/helpful-slug-1234-789'
+        },
+         updated: '2011-12-19T15:28:46.493Z',
+         version: 'jupiter/helpful-slug-1234-789-56'
+       }
+    t.deepEqual(entity.history, expectedHistory, "should have correct history");
     });
