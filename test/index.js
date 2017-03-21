@@ -27,6 +27,10 @@ const onGenerateVersion = (slug, prefix, category, id) => {
   return `${id}-56`;
 };
 
+const onUpdateTime = () => {
+  return '2011-12-19T15:28:46.493Z';
+};
+
 
 const categoryMapping = [['aphrodite','venus'],['beauty','venus'],['zeus','jupiter']]
 
@@ -44,8 +48,10 @@ const conf = {
     categoryMapping,
     categorySrcPredicate: "http://website.com/typeOfWork",
     idPredicate: "http://website.com/id",
+    updatedPredicate: "http://website.com/updated",
     onGenerateId,
     onGenerateVersion,
+    onUpdateTime
   }
 };
 test("creativeSemanticStore should validate config", (t) => {
@@ -102,7 +108,8 @@ test("creativeSemanticStore should load a category", (t) => {
       { object: '"zeus"', predicate: 'http://website.com/typeOfWork', subject: 'jupiter/helpful-slug-1234-789-56' },
       { object: '"b"', predicate: 'http:/a.com/b', subject: 'jupiter/helpful-slug-1234-789-56' },
       { object: '"c"', predicate: 'http:/a.com/c', subject: 'jupiter/helpful-slug-1234-789-56' },
-      { object: 'jupiter/helpful-slug-1234-789', predicate: 'http://website.com/id', subject: 'jupiter/helpful-slug-1234-789-56' }
+      { object: 'jupiter/helpful-slug-1234-789', predicate: 'http://website.com/id', subject: 'jupiter/helpful-slug-1234-789-56' },
+      { object: '2011-12-19T15:28:46.493Z', predicate: 'http://website.com/updated', subject: 'jupiter/helpful-slug-1234-789-56' }
      ];
     t.deepEqual(entity.triples, expected, "should have correct triples");
     });

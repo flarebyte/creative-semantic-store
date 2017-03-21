@@ -52,7 +52,9 @@ const appConfigSchema = Joi.object().keys({
    categorySrcPredicate: anyUrl,
    onGenerateVersion: Joi.func().required(),
    onGenerateId: Joi.func().required(),
+   onUpdateTime: Joi.func().required(),
    idPredicate: anyUrl,
+   updatedPredicate: anyUrl,
 });
 
 const confSchema = Joi.object().keys({
@@ -141,6 +143,7 @@ class CreativeSemanticStore {
         const prefix = this.conf.userConfig.activePrefix;
         const id = this.conf.appConfig.onGenerateId(slug, prefix, category);
         const version = this.conf.appConfig.onGenerateVersion(slug, prefix, category, id);
+        const updatedTime =  this.conf.appConfig.onUpdateTime();
         const couple2triple = (v) => {
           return {subject: version, predicate: v.predicate, object: v.object};
         }
@@ -148,6 +151,9 @@ class CreativeSemanticStore {
         triples.push({subject: version,
            predicate: this.conf.appConfig.idPredicate,
            object: id});
+        triples.push({subject: version,
+            predicate: this.conf.appConfig.updatedPredicate,
+            object: updatedTime});
         this.activeVersions.push(version);
         const activeCat = this.activeTriples[category];
         activeCat.set(version, triples);
