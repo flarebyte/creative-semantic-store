@@ -19,11 +19,11 @@ const activeAuthor = {
       "twitter:username":"@adelesmith"
 };
 
-const onGenerateId = (prefix, category) => {
-  return `${category}/${prefix}-789`;
+const onGenerateId = (slug, prefix, category) => {
+  return `${category}/${slug}-${prefix}-789`;
 };
 
-const onGenerateVersion = (prefix, category, id) => {
+const onGenerateVersion = (slug, prefix, category, id) => {
   return `${id}-56`;
 };
 
@@ -87,7 +87,9 @@ test("creativeSemanticStore should load a category", (t) => {
 
   test("creativeSemanticStore should insert entity", (t) => {
     const store = creativeSemanticStore(conf);
-    const opts = {couples: [
+    const opts = {
+      slug: "helpful-slug",
+      couples: [
       {predicate: "http:/a.com/a", object: '"a"'},
       {predicate: "http://website.com/typeOfWork", object: '"zeus"'},
       {predicate: "http:/a.com/b", object: '"b"'},
@@ -96,11 +98,11 @@ test("creativeSemanticStore should load a category", (t) => {
     t.plan(1)
     const entity = store.insertEntity(opts);
     const expected = [
-      { object: '"a"', predicate: 'http:/a.com/a', subject: 'jupiter/1234-789-56' },
-      { object: '"zeus"', predicate: 'http://website.com/typeOfWork', subject: 'jupiter/1234-789-56' },
-      { object: '"b"', predicate: 'http:/a.com/b', subject: 'jupiter/1234-789-56' },
-      { object: '"c"', predicate: 'http:/a.com/c', subject: 'jupiter/1234-789-56' },
-      { object: 'jupiter/1234-789', predicate: 'http://website.com/id', subject: 'jupiter/1234-789-56' }
+      { object: '"a"', predicate: 'http:/a.com/a', subject: 'jupiter/helpful-slug-1234-789-56' },
+      { object: '"zeus"', predicate: 'http://website.com/typeOfWork', subject: 'jupiter/helpful-slug-1234-789-56' },
+      { object: '"b"', predicate: 'http:/a.com/b', subject: 'jupiter/helpful-slug-1234-789-56' },
+      { object: '"c"', predicate: 'http:/a.com/c', subject: 'jupiter/helpful-slug-1234-789-56' },
+      { object: 'jupiter/helpful-slug-1234-789', predicate: 'http://website.com/id', subject: 'jupiter/helpful-slug-1234-789-56' }
      ];
     t.deepEqual(entity.triples, expected, "should have correct triples");
     });

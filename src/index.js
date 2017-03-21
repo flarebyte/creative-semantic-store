@@ -136,10 +136,11 @@ class CreativeSemanticStore {
 
     insertEntity(opts) {
         const couples = opts.couples;
+        const slug = opts.slug;
         const category = this.findCategory(couples);
         const prefix = this.conf.userConfig.activePrefix;
-        const id = this.conf.appConfig.onGenerateId(prefix, category);
-        const version = this.conf.appConfig.onGenerateVersion(prefix, category, id);
+        const id = this.conf.appConfig.onGenerateId(slug, prefix, category);
+        const version = this.conf.appConfig.onGenerateVersion(slug, prefix, category, id);
         const couple2triple = (v) => {
           return {subject: version, predicate: v.predicate, object: v.object};
         }
