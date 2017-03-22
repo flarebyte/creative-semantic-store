@@ -1,9 +1,16 @@
 {
+  "extends": "airbnb",
   "parser": "babel-eslint",
   "env": {
     "node": true,
     "es6": true
   },
   "rules": {
+     'import/no-extraneous-dependencies': ['error', {
+      devDependencies: true,
+      optionalDependencies: true,
+    }],
+    'no-continue': 0,
+    'no-template-curly-in-string': 0
   }
 }
