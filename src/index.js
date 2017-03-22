@@ -68,19 +68,21 @@ class CreativeSemanticStore {
     this.categories = _.uniq(_.map(conf.appConfig.categoryMapping, _.last)).sort();
     _.forEach(this.categories, (c) => {
       this.activeTriples[c] = new Multimap();
-    }
-    );
+    });
   }
 
   loadReadOnly(callback) {
+    this.readOnly = {};
     callback(null, true);
   }
 
   loadActive(callback) {
+    this.readOnly = {};
     callback(null, true);
   }
 
   saveActive(callback) {
+    this.readOnly = {};
     callback(null, true);
   }
 
@@ -135,12 +137,7 @@ class CreativeSemanticStore {
   findKeywords(couples) {
     const keywords = findObjectsByPredicate(couples,
        this.conf.appConfig.keywordPredicate);
-    return _.map(keywords, k =>
-         ({
-           id: k,
-         })
-
-      );
+    return _.map(keywords, k => ({ id: k }));
   }
 
   insertEntity(opts) {
@@ -202,30 +199,37 @@ class CreativeSemanticStore {
   }
 
   updateEntity(callback) {
+    this.readOnly = {};
     callback(null, true);
   }
 
   deleteEntity(callback) {
+    this.readOnly = {};
     callback(null, true);
   }
 
   searchById(callback) {
+    this.readOnly = {};
     callback(null, true);
   }
 
   searchByVersionId(callback) {
+    this.readOnly = {};
     callback(null, true);
   }
 
   searchByType(callback) {
+    this.readOnly = {};
     callback(null, true);
   }
 
   searchByKeyword(callback) {
+    this.readOnly = {};
     callback(null, true);
   }
 
   searchByText(callback) {
+    this.readOnly = {};
     callback(null, true);
   }
 
@@ -238,7 +242,7 @@ class CreativeSemanticStore {
  */
 
 export default function (conf) {
-  const { error, value } = Joi.validate(conf, confSchema);
+  const { error } = Joi.validate(conf, confSchema);
   if (error !== null) {
     throw error;
   }
