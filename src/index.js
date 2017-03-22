@@ -45,10 +45,18 @@ const licenseSchema = Joi.object().keys({
     activeLicense: licenseSchema,
     activeLanguage: Joi.string().length(2)
 });
+
+const refSchema = Joi.object().keys({
+   name: mediumString,
+   url: anyUrl,
+});
+
 const categoryMappingSchema = Joi.array().items(mediumString).length(2);
+const typeOfContributionMappingSchema = Joi.array().items(mediumString, Joi.object()).length(2);
 
 const appConfigSchema = Joi.object().keys({
    categoryMapping: Joi.array().items(categoryMappingSchema).unique().min(1).max(1000).required(),
+   typeOfContributionMapping: Joi.array().items(typeOfContributionMappingSchema).unique().min(1).max(1000).required(),
    categorySrcPredicate: anyUrl,
    onGenerateVersion: Joi.func().required(),
    onGenerateId: Joi.func().required(),
@@ -60,6 +68,8 @@ const appConfigSchema = Joi.object().keys({
    alternativeHeadlinePredicate: anyUrl,
    descriptionPredicate: anyUrl,
    homepagePredicate: anyUrl,
+   typeOfWorkPredicate: anyUrl,
+   typeOfContributionPredicate: anyUrl,
 });
 
 const confSchema = Joi.object().keys({
@@ -86,7 +96,12 @@ const findObjectByPredicate = (triples, predicate) => {
   if (_.isNil(value)) {
     return null;
   } else {
-    return n3Util.getLiteralValue(value);
+    if (S(value).startsWith('"')) {
+      return n3Util.getLiteralValue(value);
+    } else {
+      return value;
+    }
+
   }
 }
 
@@ -94,6 +109,7 @@ class CreativeSemanticStore {
     constructor(conf) {
         this.conf = conf;
         this.categoryMap = _.fromPairs(this.conf.appConfig.categoryMapping);
+        this.typeOfContributionMap = _.fromPairs(this.conf.appConfig.typeOfContributionMapping);
         this.activeHistory = {};
         this.activeVersions = [];
         this.activeTriples = {};
@@ -148,6 +164,11 @@ class CreativeSemanticStore {
       return this.categoryMap[categorySrc];
     }
 
+    findTypeOfContribution(couples) {
+      const typeOfContribution = findObjectByPredicate(couples, this.conf.appConfig.typeOfContributionPredicate);
+      return this.typeOfContributionMap[typeOfContribution];
+    }
+
     insertEntity(opts) {
         const couples = opts.couples;
         const slug = opts.slug;
@@ -163,7 +184,7 @@ class CreativeSemanticStore {
         const description = findObjectByPredicate(couples, this.conf.appConfig.descriptionPredicate);
         const url = findObjectByPredicate(couples, this.conf.appConfig.homepagePredicate);;
         const typeOfWork = null;
-        const typeOfContribution = null;
+        const typeOfContribution = this.findTypeOfContribution(couples);
         const keywords = null;
 
         const couple2triple = (v) => {
