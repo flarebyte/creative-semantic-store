@@ -107,13 +107,16 @@ test('creativeSemanticStore should load a category', (t) => {
     t.equal(_.size(store.activeTriples.venus), 2, 'should have the exact number of subject sections');
     t.deepEqual(store.categories, ['jupiter', 'venus'], 'should have categories');
     t.deepEqual(store.activeTriples.venus.get('http://www.site.org/version/125/'),
-      [{ graph: '', object: '"Dave Beckett"',
+      [{ graph: '',
+        object: '"Dave Beckett"',
         predicate: 'http://purl.org/dc/elements/1.1/creator',
         subject: 'http://www.site.org/version/125/' },
-      { graph: '', object: '"Art Barstow"',
+      { graph: '',
+        object: '"Art Barstow"',
         predicate: 'http://purl.org/dc/elements/1.1/creator',
         subject: 'http://www.site.org/version/125/' },
-      { graph: '', object: 'http://www.w3.org/',
+      { graph: '',
+        object: 'http://www.w3.org/',
         predicate: 'http://purl.org/dc/elements/1.1/publisher',
         subject: 'http://www.site.org/version/125/' },
       ]);
@@ -181,7 +184,8 @@ test('creativeSemanticStore should insert entity', (t) => {
       license: {
         alternateName: 'CC BY',
         description: 'Creative Commons Attribution 4.0 International',
-        name: 'CC BY 4.0', 'twitter:hastag': '#CCBY',
+        name: 'CC BY 4.0',
+        'twitter:hastag': '#CCBY',
         url: 'https://creativecommons.org/licenses/by/4.0/',
       },
       typeOfContribution: {

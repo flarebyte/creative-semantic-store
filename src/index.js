@@ -2,29 +2,30 @@ import Joi from 'joi';
 import _ from 'lodash';
 import path from 'path';
 import fs from 'fs-extra';
-import n3 from 'n3';
-import S from 'string';
+import { Util, Parser } from 'n3';
+import _S from 'string';
 import Multimap from 'multimap';
 import Ajv from 'ajv';
-const n3Util = n3.Util;
+
 const historySchema = require('./history.schema.json');
 const confSchema = require('./confSchema');
+
 const ajv = new Ajv();
 
 
-const n3parser = n3.Parser();
+const n3parser = new Parser();
 const n3parse = str => _.head(n3parser.parse(str));
 
 const validateHistory = ajv.compile(historySchema);
 
-const isTriple = str => S(str).contains('<');
+const isTriple = str => _S(str).contains('<');
 
 const readNTriplesFile = (filename, callback) => {
   fs.readFile(filename, 'utf8', (err, data) => {
     if (err) {
       callback(err);
     } else {
-      const lines = _.filter(S(data).lines(), isTriple);
+      const lines = _.filter(_S(data).lines(), isTriple);
       const triples = _.map(lines, n3parse);
       callback(null, triples);
     }
@@ -35,27 +36,24 @@ const findObjectByPredicate = (triples, predicate) => {
   const value = _.get(_.find(triples, { predicate }), 'object');
   if (_.isNil(value)) {
     return null;
-  } else if (S(value).startsWith('"')) {
-    return n3Util.getLiteralValue(value);
-  } else {
-    return value;
+  } else if (_S(value).startsWith('"')) {
+    return Util.getLiteralValue(value);
   }
+  return value;
 };
 
 const findObjectsByPredicate = (triples, predicate) => {
   const values = _.map(_.filter(triples, { predicate }), v => v.object);
   const getVal = (v) => {
-    if (S(v).startsWith('"')) {
-      return n3Util.getLiteralValue(v);
-    } else {
-      return v;
+    if (_S(v).startsWith('"')) {
+      return Util.getLiteralValue(v);
     }
+    return v;
   };
   if (_.isEmpty(values)) {
     return [];
-  } else {
-    return values;
   }
+  return _.map(values, getVal);
 };
 
 class CreativeSemanticStore {
@@ -68,7 +66,10 @@ class CreativeSemanticStore {
     this.activeVersions = [];
     this.activeTriples = {};
     this.categories = _.uniq(_.map(conf.appConfig.categoryMapping, _.last)).sort();
-    _.forEach(this.categories, c => this.activeTriples[c] = new Multimap());
+    _.forEach(this.categories, (c) => {
+      this.activeTriples[c] = new Multimap();
+    }
+    );
   }
 
   loadReadOnly(callback) {
@@ -114,22 +115,26 @@ class CreativeSemanticStore {
   }
 
   findCategory(couples) {
-    const categorySrc = findObjectByPredicate(couples, this.conf.appConfig.categorySrcPredicate);
+    const categorySrc = findObjectByPredicate(couples,
+       this.conf.appConfig.categorySrcPredicate);
     return this.categoryMap[categorySrc];
   }
 
   findTypeOfContribution(couples) {
-    const typeOfContribution = findObjectByPredicate(couples, this.conf.appConfig.typeOfContributionPredicate);
+    const typeOfContribution = findObjectByPredicate(couples,
+       this.conf.appConfig.typeOfContributionPredicate);
     return this.typeOfContributionMap[typeOfContribution];
   }
 
   findTypeOfWork(couples) {
-    const typeOfWork = findObjectByPredicate(couples, this.conf.appConfig.typeOfWorkPredicate);
+    const typeOfWork = findObjectByPredicate(couples,
+       this.conf.appConfig.typeOfWorkPredicate);
     return this.typeOfWorkMap[typeOfWork];
   }
 
   findKeywords(couples) {
-    const keywords = findObjectsByPredicate(couples, this.conf.appConfig.keywordPredicate);
+    const keywords = findObjectsByPredicate(couples,
+       this.conf.appConfig.keywordPredicate);
     return _.map(keywords, k =>
          ({
            id: k,
@@ -149,9 +154,9 @@ class CreativeSemanticStore {
     const updatedTime = this.conf.appConfig.onUpdateTime();
 
     const headline = findObjectByPredicate(couples, this.conf.appConfig.headlinePredicate);
-    const alternativeHeadline = findObjectByPredicate(couples, this.conf.appConfig.alternativeHeadlinePredicate);
+    const alternativeHeadline = findObjectByPredicate(couples,
+       this.conf.appConfig.alternativeHeadlinePredicate);
     const description = findObjectByPredicate(couples, this.conf.appConfig.descriptionPredicate);
-    const url = findObjectByPredicate(couples, this.conf.appConfig.homepagePredicate);
     const typeOfWork = this.findTypeOfWork(couples);
     const typeOfContribution = this.findTypeOfContribution(couples);
     const keywords = this.findKeywords(couples);
