@@ -52,11 +52,12 @@ const refSchema = Joi.object().keys({
 });
 
 const categoryMappingSchema = Joi.array().items(mediumString).length(2);
-const typeOfContributionMappingSchema = Joi.array().items(mediumString, Joi.object()).length(2);
+const typeOfKeyRefSchema = Joi.array().items(mediumString, Joi.object()).length(2);
 
 const appConfigSchema = Joi.object().keys({
    categoryMapping: Joi.array().items(categoryMappingSchema).unique().min(1).max(1000).required(),
-   typeOfContributionMapping: Joi.array().items(typeOfContributionMappingSchema).unique().min(1).max(1000).required(),
+   typeOfContributionMapping: Joi.array().items(typeOfKeyRefSchema).unique().min(1).max(1000).required(),
+   typeOfWorkMapping: Joi.array().items(typeOfKeyRefSchema).unique().min(1).max(1000).required(),
    categorySrcPredicate: anyUrl,
    onGenerateVersion: Joi.func().required(),
    onGenerateId: Joi.func().required(),
@@ -110,6 +111,7 @@ class CreativeSemanticStore {
         this.conf = conf;
         this.categoryMap = _.fromPairs(this.conf.appConfig.categoryMapping);
         this.typeOfContributionMap = _.fromPairs(this.conf.appConfig.typeOfContributionMapping);
+        this.typeOfWorkMap = _.fromPairs(this.conf.appConfig.typeOfWorkMapping);
         this.activeHistory = {};
         this.activeVersions = [];
         this.activeTriples = {};
@@ -169,6 +171,11 @@ class CreativeSemanticStore {
       return this.typeOfContributionMap[typeOfContribution];
     }
 
+    findTypeOfWork(couples) {
+      const typeOfWork = findObjectByPredicate(couples, this.conf.appConfig.typeOfWorkPredicate);
+      return this.typeOfWorkMap[typeOfWork];
+    }
+
     insertEntity(opts) {
         const couples = opts.couples;
         const slug = opts.slug;
@@ -182,8 +189,8 @@ class CreativeSemanticStore {
         const headline = findObjectByPredicate(couples, this.conf.appConfig.headlinePredicate);
         const alternativeHeadline = findObjectByPredicate(couples, this.conf.appConfig.alternativeHeadlinePredicate);
         const description = findObjectByPredicate(couples, this.conf.appConfig.descriptionPredicate);
-        const url = findObjectByPredicate(couples, this.conf.appConfig.homepagePredicate);;
-        const typeOfWork = null;
+        const url = findObjectByPredicate(couples, this.conf.appConfig.homepagePredicate);
+        const typeOfWork = this.findTypeOfWork(couples);
         const typeOfContribution = this.findTypeOfContribution(couples);
         const keywords = null;
 

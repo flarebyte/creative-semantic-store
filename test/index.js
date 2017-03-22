@@ -48,6 +48,17 @@ const typeOfContributionMapping = [
   }]
 ];
 
+const typeOfWorkMapping = [
+  ["http://id.website.com/thing/comic-script", {
+    "name": "Comic Script",
+    "url": "http://website.com/thing/comic-script"
+  }],
+  ["http://id.website.com/thing/fictional-character", {
+    "name": "Comic Script",
+    "url": "http://website.com/thing/fictional-character"
+  }]
+];
+
 const conf = {
   userConfig: {
     folders: ["/proj1","/proj2/alpha"],
@@ -61,6 +72,7 @@ const conf = {
   appConfig: {
     categoryMapping,
     typeOfContributionMapping,
+    typeOfWorkMapping,
     categorySrcPredicate: "http://website.com/typeOfWork",
     idPredicate: "http://website.com/id",
     updatedPredicate: "http://website.com/updated",
@@ -124,7 +136,8 @@ test("creativeSemanticStore should load a category", (t) => {
       {predicate: "http:/a.com/c", object: '"c"'},
       {predicate: "http://website.com/headline", object: '"some headline"'},
       {predicate: "http://website.com/description", object: '"some desc"'},
-      {predicate: "http://website.com/type-of-contribution", object: 'http://website.com/contrib/typeOfContribution/writing'}
+      {predicate: "http://website.com/type-of-contribution", object: 'http://website.com/contrib/typeOfContribution/writing'},
+      {predicate: "http://website.com/type-of-work", object: 'http://id.website.com/thing/comic-script'}
     ]};
     t.plan(2)
     const entity = store.insertEntity(opts);
@@ -137,6 +150,7 @@ test("creativeSemanticStore should load a category", (t) => {
       { object: '"some headline"', predicate: "http://website.com/headline", subject},
       { object: '"some desc"', predicate: "http://website.com/description", subject},
       { object: 'http://website.com/contrib/typeOfContribution/writing', predicate: "http://website.com/type-of-contribution", subject},
+      { object: 'http://id.website.com/thing/comic-script', predicate: "http://website.com/type-of-work", subject},
       { object: 'jupiter/helpful-slug-1234-789', predicate: 'http://website.com/id', subject },
       { object: '2011-12-19T15:28:46.493Z', predicate: 'http://website.com/updated', subject },
       { object: 'http://mysite.com/page/jupiter/helpful-slug-1234-789', predicate: 'http://website.com/homepage', subject }
@@ -162,7 +176,10 @@ test("creativeSemanticStore should load a category", (t) => {
             "name": "writing",
             "url": "http://website.com/typeOfContribution/writing"
           },
-          typeOfWork: null,
+          typeOfWork: {
+            "name": "Comic Script",
+            "url": "http://website.com/thing/comic-script"
+          },
           url: 'http://mysite.com/page/jupiter/helpful-slug-1234-789'
         },
          updated: '2011-12-19T15:28:46.493Z',
