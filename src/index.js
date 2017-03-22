@@ -71,6 +71,7 @@ const appConfigSchema = Joi.object().keys({
    homepagePredicate: anyUrl,
    typeOfWorkPredicate: anyUrl,
    typeOfContributionPredicate: anyUrl,
+   keywordPredicate: anyUrl,
 });
 
 const confSchema = Joi.object().keys({
@@ -103,6 +104,22 @@ const findObjectByPredicate = (triples, predicate) => {
       return value;
     }
 
+  }
+}
+
+const findObjectsByPredicate = (triples, predicate) => {
+  const values = _.map(_.filter(triples, {predicate}), v=> v.object);
+  const getVal = (v) => {
+    if (S(v).startsWith('"')) {
+      return n3Util.getLiteralValue(v);
+    } else {
+      return v;
+    }
+  }
+  if (_.isEmpty(values)) {
+    return [];
+  } else {
+    return values;
   }
 }
 
@@ -176,6 +193,16 @@ class CreativeSemanticStore {
       return this.typeOfWorkMap[typeOfWork];
     }
 
+    findKeywords(couples) {
+      const keywords = findObjectsByPredicate(couples, this.conf.appConfig.keywordPredicate);
+      return _.map(keywords, k => {
+        return {
+          id: k
+        }
+
+      });
+    }
+
     insertEntity(opts) {
         const couples = opts.couples;
         const slug = opts.slug;
@@ -192,7 +219,7 @@ class CreativeSemanticStore {
         const url = findObjectByPredicate(couples, this.conf.appConfig.homepagePredicate);
         const typeOfWork = this.findTypeOfWork(couples);
         const typeOfContribution = this.findTypeOfContribution(couples);
-        const keywords = null;
+        const keywords = this.findKeywords(couples);
 
         const couple2triple = (v) => {
           return {subject: version, predicate: v.predicate, object: v.object};
