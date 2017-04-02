@@ -2,59 +2,19 @@ import Joi from 'joi';
 import _ from 'lodash';
 import path from 'path';
 import fs from 'fs-extra';
-import { Util, Parser } from 'n3';
-import _S from 'string';
 import Multimap from 'multimap';
 import Ajv from 'ajv';
+import { readNTriplesFile,
+   findObjectByPredicate,
+   findObjectsByPredicate,
+ } from 'ntriples-collection';
 
 const historySchema = require('./history.schema.json');
 const confSchema = require('./confSchema');
 
 const ajv = new Ajv();
 
-
-const n3parser = new Parser();
-const n3parse = str => _.head(n3parser.parse(str));
-
 const validateHistory = ajv.compile(historySchema);
-
-const isTriple = str => _S(str).contains('<');
-
-const readNTriplesFile = (filename, callback) => {
-  fs.readFile(filename, 'utf8', (err, data) => {
-    if (err) {
-      callback(err);
-    } else {
-      const lines = _.filter(_S(data).lines(), isTriple);
-      const triples = _.map(lines, n3parse);
-      callback(null, triples);
-    }
-  });
-};
-
-const findObjectByPredicate = (triples, predicate) => {
-  const value = _.get(_.find(triples, { predicate }), 'object');
-  if (_.isNil(value)) {
-    return null;
-  } else if (_S(value).startsWith('"')) {
-    return Util.getLiteralValue(value);
-  }
-  return value;
-};
-
-const findObjectsByPredicate = (triples, predicate) => {
-  const values = _.map(_.filter(triples, { predicate }), v => v.object);
-  const getVal = (v) => {
-    if (_S(v).startsWith('"')) {
-      return Util.getLiteralValue(v);
-    }
-    return v;
-  };
-  if (_.isEmpty(values)) {
-    return [];
-  }
-  return _.map(values, getVal);
-};
 
 class CreativeSemanticStore {
   constructor(conf) {

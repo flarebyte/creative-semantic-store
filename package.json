@@ -68,6 +68,7 @@
     "lodash": "^4.17.4",
     "multimap": "^1.0.2",
     "n3": "^0.9.1",
+    "ntriples-collection": "^1.2.0",
     "string": "^3.3.3"
   }
 }
