@@ -78,42 +78,44 @@ class CreativeSemanticStore {
 
   findCategory(couples) {
     const categorySrc = findObjectByPredicate(couples,
-       this.conf.appConfig.categorySrcPredicate);
+       this.conf.appConfig.predicates.categorySrc);
     return this.categoryMap[categorySrc];
   }
 
   findTypeOfContribution(couples) {
     const typeOfContribution = findObjectByPredicate(couples,
-       this.conf.appConfig.typeOfContributionPredicate);
+       this.conf.appConfig.predicates.typeOfContribution);
     return this.typeOfContributionMap[typeOfContribution];
   }
 
   findTypeOfWork(couples) {
     const typeOfWork = findObjectByPredicate(couples,
-       this.conf.appConfig.typeOfWorkPredicate);
+       this.conf.appConfig.predicates.typeOfWork);
     return this.typeOfWorkMap[typeOfWork];
   }
 
   findKeywords(couples) {
     const keywords = findObjectsByPredicate(couples,
-       this.conf.appConfig.keywordPredicate);
+       this.conf.appConfig.predicates.keyword);
     return _.map(keywords, k => ({ id: k }));
   }
 
   insertEntity(opts) {
+    const appConfig = this.conf.appConfig;
+    const userConfig = this.conf.userConfig;
     const couples = opts.couples;
     const slug = opts.slug;
     const category = this.findCategory(couples);
-    const prefix = this.conf.userConfig.activePrefix;
-    const id = this.conf.appConfig.onGenerateId(slug, prefix, category);
-    const homepage = this.conf.appConfig.onGenerateHomepage(slug, prefix, category);
-    const version = this.conf.appConfig.onGenerateVersion(slug, prefix, category, id);
-    const updatedTime = this.conf.appConfig.onUpdateTime();
+    const prefix = userConfig.activePrefix;
+    const id = appConfig.onGenerateId(slug, prefix, category);
+    const homepage = appConfig.onGenerateHomepage(slug, prefix, category);
+    const version = appConfig.onGenerateVersion(slug, prefix, category, id);
+    const updatedTime = appConfig.onUpdateTime();
 
-    const headline = findObjectByPredicate(couples, this.conf.appConfig.headlinePredicate);
-    const alternativeHeadline = findObjectByPredicate(couples,
-       this.conf.appConfig.alternativeHeadlinePredicate);
-    const description = findObjectByPredicate(couples, this.conf.appConfig.descriptionPredicate);
+    const headline = findObjectByPredicate(couples, appConfig.predicates.headline);
+    const alternativeHeadline =
+      findObjectByPredicate(couples, appConfig.predicates.alternativeHeadline);
+    const description = findObjectByPredicate(couples, appConfig.predicates.description);
     const typeOfWork = this.findTypeOfWork(couples);
     const typeOfContribution = this.findTypeOfContribution(couples);
     const keywords = this.findKeywords(couples);
@@ -123,13 +125,13 @@ class CreativeSemanticStore {
         ;
     const triples = _.map(couples, couple2triple);
     triples.push({ subject: version,
-      predicate: this.conf.appConfig.idPredicate,
+      predicate: appConfig.predicates.id,
       object: id });
     triples.push({ subject: version,
-      predicate: this.conf.appConfig.updatedPredicate,
+      predicate: appConfig.predicates.updated,
       object: updatedTime });
     triples.push({ subject: version,
-      predicate: this.conf.appConfig.homepagePredicate,
+      predicate: appConfig.predicates.homepage,
       object: homepage });
     this.activeVersions.push(version);
     const activeCat = this.activeTriples[category];
@@ -141,12 +143,12 @@ class CreativeSemanticStore {
       latest: {
         headline,
         url: homepage,
-        inLanguage: this.conf.userConfig.activeLanguage,
+        inLanguage: userConfig.activeLanguage,
         typeOfWork,
         typeOfContribution,
-        license: this.conf.userConfig.activeLicense,
+        license: userConfig.activeLicense,
         keywords,
-        author: this.conf.userConfig.activeAuthor,
+        author: userConfig.activeAuthor,
       },
     };
     if (_.isString(alternativeHeadline)) {

@@ -34,6 +34,19 @@ const userConfigSchema = Joi.object().keys({
 const categoryMappingSchema = Joi.array().items(mediumString).length(2);
 const typeOfKeyRefSchema = Joi.array().items(mediumString, Joi.object()).length(2);
 
+const predicatesSchema = Joi.object().keys({
+  id: anyUrl,
+  categorySrc: anyUrl,
+  updated: anyUrl,
+  headline: anyUrl,
+  alternativeHeadline: anyUrl,
+  description: anyUrl,
+  homepage: anyUrl,
+  typeOfWork: anyUrl,
+  typeOfContribution: anyUrl,
+  keyword: anyUrl,
+});
+
 const appConfigSchema = Joi.object().keys({
   categoryMapping:
   Joi.array().items(categoryMappingSchema)
@@ -53,20 +66,11 @@ const appConfigSchema = Joi.object().keys({
   .min(1)
   .max(1000)
   .required(),
-  categorySrcPredicate: anyUrl,
   onGenerateVersion: Joi.func().required(),
   onGenerateId: Joi.func().required(),
   onGenerateHomepage: Joi.func().required(),
   onUpdateTime: Joi.func().required(),
-  idPredicate: anyUrl,
-  updatedPredicate: anyUrl,
-  headlinePredicate: anyUrl,
-  alternativeHeadlinePredicate: anyUrl,
-  descriptionPredicate: anyUrl,
-  homepagePredicate: anyUrl,
-  typeOfWorkPredicate: anyUrl,
-  typeOfContributionPredicate: anyUrl,
-  keywordPredicate: anyUrl,
+  predicates: predicatesSchema.required(),
 });
 
 const confSchema = Joi.object().keys({
