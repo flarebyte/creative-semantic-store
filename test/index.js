@@ -65,7 +65,7 @@ const typeOfWorkMapping = [
 
 const conf = {
   userConfig: {
-    folders: ['/proj1', '/proj2/alpha'],
+    folders: ['/proj1', '/proj2/alpha', '/schema.rdfs.org'],
     activeFolder: 'active',
     activePrefix: '1234',
     activeAuthor,
